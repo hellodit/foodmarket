@@ -1,10 +1,11 @@
 app_name: "FoodMarket"
-app_port: 8080
+app_port: 1233
 
 db_host: 127.0.0.1
 db_port: 5432
-db_user: "root"
+db_user: "postgres"
 db_pass: ""
-db_name: "FoodMarket"
+db_name: "foodmarket"
+db_ssl_mode: 'disable'
 
 jwt_secret: "FoodMarket123456"
