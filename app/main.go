@@ -2,18 +2,25 @@ package main
 
 import (
 	"foodmarket/config"
+	"foodmarket/db/postgre"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
+
+	_userHttDelivery "foodmarket/user/delivery/http"
+	_userPostgreRepository "foodmarket/user/repository/postgre"
+	_userUseCase "foodmarket/user/usecase"
 )
 
 func main() {
 
-	// ctxTimeout := time.Duration(5) * time.Second
+	timeoutCtx := time.Duration(5) * time.Second
 	config.Read()
+	dbConnector := postgre.Connect()
+
 	server := &http.Server{
 		Addr:         ":" + viper.GetString("app_port"),
 		ReadTimeout:  20 * time.Minute,
@@ -30,6 +37,10 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Welcome to "+viper.GetString("app_name"))
 	})
+
+	userRepo := _userPostgreRepository.NewPsqlUserRepository(dbConnector)
+	userUsecase := _userUseCase.NewUserUsecase(userRepo, timeoutCtx)
+	_userHttDelivery.NewUserHandler(e, userUsecase)
 
 	err := e.StartServer(server)
 	if err != nil {

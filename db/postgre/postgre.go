@@ -28,7 +28,7 @@ func Connect() *pg.DB {
 	dbUser := viper.GetString("db_user")
 	dbPass := viper.GetString("db_pass")
 	dbName := viper.GetString("db_name")
-	dbSslMode := viper.GetString("db_sslmode")
+	dbSslMode := viper.GetString("db_ssl_mode")
 
 	parse := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", dbUser, dbPass, dbHost, dbPort, dbName, dbSslMode)
 	opt, err := pg.ParseURL(parse)
