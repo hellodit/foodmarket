@@ -35,8 +35,8 @@ func (u *PsqlUserRepository) CreateUser(ctx context.Context, usr *domain.User) (
 }
 
 func (u *PsqlUserRepository) Attempt(ctx context.Context, credential *domain.Credential) (user *domain.User, err error) {
-
-	panic("coming soon")
+	user = new(domain.User)
+	err = u.DB.Model(user).Where("email = ?", credential.Email).Select()
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +49,8 @@ func (u *PsqlUserRepository) Attempt(ctx context.Context, credential *domain.Cre
 	return user, nil
 }
 
-func (u *PsqlUserRepository) Update(ctx context.Context, usr *domain.User) (user *domain.User, err error) {
-	panic("coming soon")
+func (u PsqlUserRepository) Update(ctx context.Context, usr *domain.User) (user *domain.User, err error) {
+	_, err = u.DB.Model(usr).Update()
 
 	if err != nil {
 		return nil, err
@@ -59,16 +59,14 @@ func (u *PsqlUserRepository) Update(ctx context.Context, usr *domain.User) (user
 	return usr, nil
 }
 
-func (u *PsqlUserRepository) Find(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
-	panic("coming soon")
-	//
-	//user = new(domain.User)
-	//err = u.DB.Model(user).Where("id = ? ", id).First()
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//return user, nil
+func (u PsqlUserRepository) Find(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
+	user = new(domain.User)
+	err = u.DB.Model(user).Where("id = ? ", id).First()
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (u *PsqlUserRepository) FindBy(ctx context.Context, key, value string) (user *domain.User, err error) {

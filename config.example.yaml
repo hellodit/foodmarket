@@ -8,4 +8,5 @@ db_pass: "default"
 db_name: "foodmarket"
 db_ssl_mode: "disable"
 
+JWT_EXPIRED_TOKEN_DURATION: "1000"
 jwt_secret: "FoodMarket123456"

@@ -22,6 +22,7 @@ func NewUserHandler(e *echo.Echo, UserUsecase domain.UserUseCase) {
 	user := e.Group("/user")
 	customMiddleware := middleware.Init()
 	user.GET("/:id", handler.GetByIDHandler, customMiddleware.Auth)
+	user.GET("/profile", handler.ProfileHandler, customMiddleware.Auth)
 	user.GET("/fetch", handler.FetchHandler)
 	user.POST("/register", handler.RegisterHandler)
 	user.POST("/login", handler.LoginHandler)
@@ -135,4 +136,15 @@ func (u userHandler) LoginHandler(e echo.Context) error {
 	}
 
 	return e.JSON(http.StatusOK, res)
+}
+
+func (u userHandler) ProfileHandler(e echo.Context) error {
+	ctx := e.Request().Context()
+
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	return e.JSON(http.StatusOK, res)
+
 }
