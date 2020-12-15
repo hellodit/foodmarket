@@ -23,6 +23,7 @@ type (
 		Name      string    `pg:"name,type:varchar(255)" json:"name" form:"name"`
 		Email     string    `pg:"email,type:varchar(255)" json:"email" form:"email"`
 		Password  string    `pg:"password,type:varchar(255)" json:"-" form:"password"`
+		Type      string    `pg:"type,type:varchar(255)" json:"type" form:"type"`
 		CreatedAt time.Time `pg:"default:now()" json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
 	}

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
@@ -38,8 +37,6 @@ func (m *Middleware) Auth(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			fmt.Print(token.Claims)
-			fmt.Print("===========")
 			return next(c)
 		} else {
 			return echo.NewHTTPError(http.StatusUnauthorized, err)

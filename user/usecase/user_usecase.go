@@ -47,6 +47,7 @@ func (u UserUsecase) Register(ctx context.Context, usr *domain.User, form *http.
 	usr.Name = form.FormValue("name")
 	usr.Email = form.FormValue("email")
 	usr.CreatedAt = time.Now()
+	usr.Type = "user"
 	usr.Password = string(hashedPassword)
 
 	user, err := u.UserRepo.CreateUser(ctx, usr)
@@ -59,7 +60,22 @@ func (u UserUsecase) Register(ctx context.Context, usr *domain.User, form *http.
 }
 
 func (u UserUsecase) UpdateUser(ctx context.Context, usr *domain.User, form *http.Request) (res interface{}, err error) {
-	panic("implement me")
+	ctx, cancel := context.WithTimeout(ctx, u.ContextTimeout)
+	defer cancel()
+
+	usr.Name = form.FormValue("name")
+	usr.Email = form.FormValue("email")
+	usr.Type = "user"
+	usr.UpdatedAt = time.Now()
+	usr.Password = ""
+
+	res, err = u.UserRepo.Update(ctx, usr)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func (u UserUsecase) Login(ctx context.Context, credential *domain.Credential) (res interface{}, err error) {

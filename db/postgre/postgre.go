@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/go-pg/pg/v10"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -30,8 +29,6 @@ func Connect() *pg.DB {
 	if db == nil {
 		panic(fmt.Errorf("failed to connect database: %s", db))
 	}
-
-	logrus.Printf("Success connected to DB \n")
 
 	return db
 }

@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"foodmarket/domain"
+	"foodmarket/helper"
 	"foodmarket/middleware"
-	"net/http"
-
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/thedevsaddam/govalidator"
+	"net/http"
 )
 
 type userHandler struct {
@@ -28,9 +28,35 @@ func NewUserHandler(e *echo.Echo, UserUsecase domain.UserUseCase) {
 	user.POST("/login", handler.LoginHandler)
 	user.POST("/update", handler.UpdateHandler)
 }
-func (u userHandler) UpdateHandler(e echo.Context) error {
-	panic("implement me")
 
+func (u userHandler) UpdateHandler(e echo.Context) error {
+	ctx := e.Request().Context()
+
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	var usr domain.User
+	if err := e.Bind(&usr); err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err).SetInternal(errors.New("invalid parameter"))
+	}
+
+	claims, err := helper.ParseToken(e)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err).SetInternal(err)
+	}
+
+	usr.ID = uuid.MustParse(claims["sub"].(string))
+	res, err := u.userUsecase.UpdateUser(ctx, &usr, e.Request())
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"data":   res,
+	})
 }
 func (u userHandler) GetByIDHandler(e echo.Context) error {
 	ctx := e.Request().Context()
@@ -140,11 +166,13 @@ func (u userHandler) LoginHandler(e echo.Context) error {
 
 func (u userHandler) ProfileHandler(e echo.Context) error {
 	ctx := e.Request().Context()
-
 	if ctx == nil {
 		ctx = context.Background()
 	}
-
-	return e.JSON(http.StatusOK, res)
-
+	claims, err := helper.ParseToken(e)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err).SetInternal(err)
+	}
+	profile := claims["user"]
+	return e.JSON(http.StatusOK, profile)
 }

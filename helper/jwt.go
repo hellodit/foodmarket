@@ -18,13 +18,13 @@ type Claims struct {
 	User *domain.User `json:"user"`
 }
 
-func GenerateJwt(ctx context.Context, user *domain.User) (token string, exp int64, err error){
+func GenerateJwt(ctx context.Context, user *domain.User) (token string, exp int64, err error) {
 	secret := viper.GetString("JWT_SECRET")
 	tkExp := viper.GetDuration("JWT_EXPIRED_TOKEN_DURATION") * time.Minute
 	jwtid := uuid.New()
 
 	claims := Claims{
-		StandardClaims : jwt.StandardClaims{
+		StandardClaims: jwt.StandardClaims{
 			Id:        jwtid.String(),
 			Issuer:    "foodmarket",
 			IssuedAt:  time.Now().Unix(),
@@ -49,9 +49,10 @@ func GenerateJwt(ctx context.Context, user *domain.User) (token string, exp int6
 
 }
 
-func ValidateJwt(c echo.Context)(jwt.MapClaims, error) {
+func ParseToken(c echo.Context) (jwt.MapClaims, error) {
 	tokenString := c.Request().Header.Get("Authorization")
-	if strings.Contains(tokenString, "Bearer"){
+
+	if !strings.Contains(tokenString, "Bearer") {
 		return nil, errors.New("Token not provided")
 	}
 	tokenString = strings.Replace(tokenString, "Bearer ", "", -1)
@@ -64,8 +65,8 @@ func ValidateJwt(c echo.Context)(jwt.MapClaims, error) {
 		return []byte(viper.GetString("JWT_SECRET")), nil
 	})
 
-	if err != nil{
-		return nil,err
+	if err != nil {
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)

@@ -31,7 +31,11 @@ func (u *PsqlUserRepository) Fetch(ctx context.Context) (res []domain.User, err 
 }
 
 func (u *PsqlUserRepository) CreateUser(ctx context.Context, usr *domain.User) (user *domain.User, err error) {
-	panic("coming soon")
+	_, err = u.DB.Model(usr).Insert()
+	if err != nil {
+		return nil, err
+	}
+	return usr, nil
 }
 
 func (u *PsqlUserRepository) Attempt(ctx context.Context, credential *domain.Credential) (user *domain.User, err error) {
@@ -50,7 +54,10 @@ func (u *PsqlUserRepository) Attempt(ctx context.Context, credential *domain.Cre
 }
 
 func (u PsqlUserRepository) Update(ctx context.Context, usr *domain.User) (user *domain.User, err error) {
-	_, err = u.DB.Model(usr).Update()
+	_, err = u.DB.Model(usr).
+		Column("name", "email", "updated_at").
+		WherePK().
+		Update()
 
 	if err != nil {
 		return nil, err
