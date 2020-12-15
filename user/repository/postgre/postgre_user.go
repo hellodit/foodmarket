@@ -4,26 +4,27 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 
 	"foodmarket/domain"
+	"github.com/go-pg/pg/v10"
 )
 
 //PsqlUserRepository struct
 type PsqlUserRepository struct {
-	DB *gorm.DB
+	DB *pg.DB
 }
 
 //NewPsqlUserRepository psql
-func NewPsqlUserRepository(Coon *gorm.DB) domain.UserRepository {
-	return &PsqlUserRepository{Coon}
+func NewPsqlUserRepository(db *pg.DB) domain.UserRepository {
+	return &PsqlUserRepository{DB: db}
 }
 
 func (u *PsqlUserRepository) Fetch(ctx context.Context) (res []domain.User, err error) {
 	var users []domain.User
 
-	if result := u.DB.Find(&users); result.Error != nil {
-		return nil, result.Error
+	err = u.DB.Model(&users).Order("created_at ASC").Limit(20).Select()
+	if err != nil {
+		return nil, err
 	}
 
 	return users, nil

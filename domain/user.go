@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
 
@@ -19,14 +18,13 @@ type (
 
 	//User struct
 	User struct {
-		ID        uuid.UUID      `json:"id"`
-		Name      string         `json:"name" form:"name"`
-		Email     string         `json:"email" form:"email"`
-		Type      string         `json:"type" form:"type"`
-		Password  string         `json:"-" form:"password"`
-		CreatedAt time.Time      `json:"created_at"`
-		UpdatedAt time.Time      `json:"updated_at"`
-		DeletedAt gorm.DeletedAt `json:"deleted_at"`
+		tableName struct{}  `pg:"users"`
+		ID        uuid.UUID `pg:"id,pk,type:uuid" json:"id"`
+		Name      string    `pg:"name,type:varchar(255)" json:"name" form:"name"`
+		Email     string    `pg:"email,type:varchar(255)" json:"email" form:"email"`
+		Password  string    `pg:"password,type:varchar(255)" json:"-" form:"password"`
+		CreatedAt time.Time `pg:"default:now()" json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
 	}
 )
 
