@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 
@@ -18,13 +19,14 @@ type (
 
 	//User struct
 	User struct {
-		tableName struct{}  `pg:"users"`
-		ID        uuid.UUID `pg:"id,pk,type:uuid" json:"id"`
-		Name      string    `pg:"name,type:varchar(255)" json:"name" form:"name"`
-		Email     string    `pg:"email,type:varchar(255)" json:"email" form:"email"`
-		Password  string    `pg:"password,type:varchar(255)" json:"-" form:"password"`
-		CreatedAt time.Time `pg:"default:now()" json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
+		ID        uuid.UUID      `json:"id"`
+		Name      string         `json:"name" form:"name"`
+		Email     string         `json:"email" form:"email"`
+		Type      string         `json:"type" form:"type"`
+		Password  string         `json:"-" form:"password"`
+		CreatedAt time.Time      `json:"created_at"`
+		UpdatedAt time.Time      `json:"updated_at"`
+		DeletedAt gorm.DeletedAt `json:"deleted_at"`
 	}
 )
 
@@ -35,6 +37,7 @@ type UserRepository interface {
 	Update(ctx context.Context, usr *User) (user *User, err error)
 	Find(ctx context.Context, id uuid.UUID) (user *User, err error)
 	FindBy(ctx context.Context, key, value string) (user *User, err error)
+	Fetch(ctx context.Context) (res []User, err error)
 }
 
 //UserUseCase interface
@@ -44,4 +47,5 @@ type UserUseCase interface {
 	Login(ctx context.Context, credential *Credential) (res interface{}, err error)
 	Logout(ctx context.Context, claims jwt.Claims)
 	GetUserById(ctx context.Context, id uuid.UUID) (res interface{}, err error)
+	Fetch(ctx context.Context) (res interface{}, err error)
 }

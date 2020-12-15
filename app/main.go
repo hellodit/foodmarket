@@ -39,7 +39,12 @@ func main() {
 	})
 
 	userRepo := _userPostgreRepository.NewPsqlUserRepository(dbConnector)
+	//foodRepo := _foodPostgreRepository.NewPostgreFoodRepository(dbConnector)
+
+	//foodUsecase := _foodUseCase.NewFoodUsecase(foodRepo, timeoutCtx)
 	userUsecase := _userUseCase.NewUserUsecase(userRepo, timeoutCtx)
+
+	//_foodHttpDelivery.NewFoodHandler(e, foodUsecase)
 	_userHttDelivery.NewUserHandler(e, userUsecase)
 
 	err := e.StartServer(server)

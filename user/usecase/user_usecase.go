@@ -12,8 +12,25 @@ import (
 )
 
 type UserUsecase struct {
-	UserRepo domain.UserRepository
+	UserRepo       domain.UserRepository
 	ContextTimeout time.Duration
+}
+
+func (u UserUsecase) Fetch(ctx context.Context) (res interface{}, err error) {
+	ctx, cancel := context.WithTimeout(ctx, u.ContextTimeout)
+	defer cancel()
+
+	res, err = u.UserRepo.Fetch(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"message": "success",
+		"data":    res,
+	}, nil
+
 }
 
 func (u UserUsecase) Register(ctx context.Context, usr *domain.User, form *http.Request) (res interface{}, err error) {
@@ -65,7 +82,8 @@ func (u UserUsecase) Login(ctx context.Context, credential *domain.Credential) (
 		"access_token": token,
 		"expires_in":   exp,
 		"profile":      user,
-	}, nil}
+	}, nil
+}
 
 func (u UserUsecase) Logout(ctx context.Context, claims jwt.Claims) {
 	panic("implement me")
@@ -81,9 +99,10 @@ func (u UserUsecase) GetUserById(ctx context.Context, id uuid.UUID) (res interfa
 		return nil, err
 	}
 
-	return user, nil}
+	return user, nil
+}
 
-func NewUserUsecase(repository domain.UserRepository, duration time.Duration)  domain.UserUseCase{
+func NewUserUsecase(repository domain.UserRepository, duration time.Duration) domain.UserUseCase {
 	return UserUsecase{
 		UserRepo:       repository,
 		ContextTimeout: duration,

@@ -22,6 +22,7 @@ func NewUserHandler(e *echo.Echo, UserUsecase domain.UserUseCase) {
 	user := e.Group("/user")
 	customMiddleware := middleware.Init()
 	user.GET("/:id", handler.GetByIDHandler, customMiddleware.Auth)
+	user.GET("/fetch", handler.FetchHandler)
 	user.POST("/register", handler.RegisterHandler)
 	user.POST("/login", handler.LoginHandler)
 	user.POST("/update", handler.UpdateHandler)
@@ -85,6 +86,20 @@ func (u userHandler) RegisterHandler(e echo.Context) error {
 		"status": "success",
 		"data":   res,
 	})
+}
+
+func (u userHandler) FetchHandler(e echo.Context) error {
+	ctx := e.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	res, err := u.userUsecase.Fetch(ctx)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusFailedDependency, err.Error()).SetInternal(err)
+	}
+
+	return e.JSON(http.StatusOK, res)
 }
 
 func (u userHandler) LoginHandler(e echo.Context) error {
