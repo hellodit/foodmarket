@@ -1,19 +1,19 @@
-#Food Market 
+# Food Market 
 Simple food market implementation
 
-##Feature 
+## Feature 
 * User Authentication (Login, register, forget password)
 * User Profile  
 * Resource Food (Create, read, update, delete)
 * Order 
 * Payment gateway (Midtrans) 
 
-##Tech stack 
+## Tech stack 
 * Golang 
 * PostgreSQL 
 * Docker 
 
-##Todo
+## Todo
 - [x] User Authentication 
 - [ ] Resource Food 
 - [ ] Order Feature
