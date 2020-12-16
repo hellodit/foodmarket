@@ -47,4 +47,5 @@ type UserUseCase interface {
 	Logout(ctx context.Context, claims jwt.Claims)
 	GetUserById(ctx context.Context, id uuid.UUID) (res interface{}, err error)
 	Fetch(ctx context.Context) (res interface{}, err error)
+	ForgetPassword(ctx context.Context, email string) (int, error)
 }

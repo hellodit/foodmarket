@@ -23,10 +23,11 @@ func NewUserHandler(e *echo.Echo, UserUsecase domain.UserUseCase) {
 	customMiddleware := middleware.Init()
 	user.GET("/:id", handler.GetByIDHandler, customMiddleware.Auth)
 	user.GET("/profile", handler.ProfileHandler, customMiddleware.Auth)
-	user.GET("/fetch", handler.FetchHandler)
+	user.GET("/fetch", handler.FetchHandler, customMiddleware.Auth)
 	user.POST("/register", handler.RegisterHandler)
 	user.POST("/login", handler.LoginHandler)
-	user.POST("/update", handler.UpdateHandler)
+	user.POST("/update", handler.UpdateHandler, customMiddleware.Auth)
+	user.POST("/forget-password", handler.ForgerPasswordHandler, customMiddleware.Auth)
 }
 
 func (u userHandler) UpdateHandler(e echo.Context) error {
@@ -175,4 +176,32 @@ func (u userHandler) ProfileHandler(e echo.Context) error {
 	}
 	profile := claims["user"]
 	return e.JSON(http.StatusOK, profile)
+}
+
+func (u userHandler) ForgerPasswordHandler(e echo.Context) error {
+
+	rules := govalidator.MapData{
+		"email": []string{"required", "email"},
+	}
+
+	validate := govalidator.Options{
+		Request: e.Request(),
+		Rules:   rules,
+	}
+
+	if err := govalidator.New(validate).Validate(); len(err) > 0 {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err).SetInternal(errors.New("invalid parameter"))
+	}
+
+	ctx := e.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	res, err := u.userUsecase.ForgetPassword(ctx, e.FormValue("email"))
+	if err != nil {
+		return echo.NewHTTPError(res, err.Error()).SetInternal(err)
+
+	}
+
+	return e.JSON(http.StatusOK, map[string]interface{}{"message": "Success. Mail was sent!"})
 }

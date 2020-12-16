@@ -4,8 +4,10 @@ import (
 	"context"
 	"foodmarket/domain"
 	"foodmarket/helper"
+	"foodmarket/thirdparty/mail"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/labstack/gommon/random"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
@@ -14,6 +16,36 @@ import (
 type UserUsecase struct {
 	UserRepo       domain.UserRepository
 	ContextTimeout time.Duration
+}
+
+func (u UserUsecase) ForgetPassword(ctx context.Context, email string) (int, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.ContextTimeout)
+	defer cancel()
+
+	userAccount, err := u.UserRepo.FindBy(ctx, "email", email)
+	if err != nil {
+		return 420, err
+	}
+
+	randomPass := random.String(8)
+	encrypted, _ := bcrypt.GenerateFromPassword([]byte(randomPass), bcrypt.DefaultCost)
+	userAccount.Password = string(encrypted)
+	_, err = u.UserRepo.Update(ctx, userAccount)
+	if err != nil {
+		return 423, err
+	}
+
+	subject := "Mail Subject"
+	message := "Password updated to " + randomPass
+
+	err = mail.SendSmtpMail(subject, email, message)
+
+	if err != nil {
+		return 500, err
+	}
+
+	return 200, nil
+
 }
 
 func (u UserUsecase) Fetch(ctx context.Context) (res interface{}, err error) {
