@@ -10,6 +10,9 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
 
+	_foodHttpDelivery "foodmarket/food/delivery/http"
+	_foodPostgreRepository "foodmarket/food/repository/postgre"
+	_foodUseCase "foodmarket/food/usecase"
 	_userHttDelivery "foodmarket/user/delivery/http"
 	_userPostgreRepository "foodmarket/user/repository/postgre"
 	_userUseCase "foodmarket/user/usecase"
@@ -39,12 +42,12 @@ func main() {
 	})
 
 	userRepo := _userPostgreRepository.NewPsqlUserRepository(dbConnector)
-	//foodRepo := _foodPostgreRepository.NewPostgreFoodRepository(dbConnector)
+	foodRepo := _foodPostgreRepository.NewPostgreFoodRepository(dbConnector)
 
-	//foodUsecase := _foodUseCase.NewFoodUsecase(foodRepo, timeoutCtx)
+	foodUsecase := _foodUseCase.NewFoodUsecase(foodRepo, timeoutCtx)
 	userUsecase := _userUseCase.NewUserUsecase(userRepo, timeoutCtx)
 
-	//_foodHttpDelivery.NewFoodHandler(e, foodUsecase)
+	_foodHttpDelivery.NewFoodHandler(e, foodUsecase)
 	_userHttDelivery.NewUserHandler(e, userUsecase)
 
 	err := e.StartServer(server)

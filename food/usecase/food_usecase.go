@@ -4,6 +4,8 @@ import (
 	"context"
 	"foodmarket/domain"
 	"github.com/google/uuid"
+	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -12,36 +14,78 @@ type foodUsecase struct {
 	ContextTimeout time.Duration
 }
 
-func (f2 *foodUsecase) Fetch(ctx context.Context) (res []domain.Food, err error) {
+func (f2 *foodUsecase) GetByID(ctx context.Context, id uuid.UUID) (domain.Food, error) {
+	panic("implement me")
+}
+
+func (f2 *foodUsecase) Fetch(ctx context.Context, limit int) (res interface{}, err error) {
 	ctx, cancel := context.WithTimeout(ctx, f2.ContextTimeout)
 	defer cancel()
 
-	res, err = f2.FoodRepo.Fetch(ctx)
+	res, err = f2.FoodRepo.Fetch(ctx, limit)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return
+	return map[string]interface{}{
+		"message": "success",
+		"data":    res,
+	}, nil
 }
 
-func (f2 *foodUsecase) GetByID(ctx context.Context, id uuid.UUID) (domain.Food, error) {
-	panic("implement me")
-}
-
-func (f2 *foodUsecase) GetByTitle(ctx context.Context, title string) (domain.Food, error) {
-	panic("implement me")
-}
-
-func (f2 *foodUsecase) Update(ctx context.Context, food *domain.Food) error {
-	panic("implement me")
-}
-
-func (f2 *foodUsecase) Store(ctx context.Context, food *domain.Food) error {
+func (f2 *foodUsecase) Update(ctx context.Context, food *domain.Food, form *http.Request) error {
 	ctx, cancel := context.WithTimeout(ctx, f2.ContextTimeout)
 	defer cancel()
 
-	err := f2.FoodRepo.Store(ctx, food)
+	price, err := strconv.Atoi(form.FormValue("price"))
+	if err != nil {
+		return err
+	}
+
+	stock, err := strconv.Atoi(form.FormValue("stock"))
+	if err != nil {
+		return err
+	}
+
+	food.Name = form.FormValue("name")
+	food.Description = form.FormValue("description")
+	food.CreatedAt = time.Now()
+	food.Price = price
+	food.Stock = stock
+
+	err = f2.FoodRepo.Update(ctx, food)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (f2 *foodUsecase) Store(ctx context.Context, food *domain.Food, form *http.Request) error {
+	ctx, cancel := context.WithTimeout(ctx, f2.ContextTimeout)
+	defer cancel()
+
+	price, err := strconv.Atoi(form.FormValue("price"))
+	if err != nil {
+		return err
+	}
+
+	stock, err := strconv.Atoi(form.FormValue("stock"))
+	if err != nil {
+		return err
+	}
+
+	food.ID = uuid.New()
+	food.Name = form.FormValue("name")
+	food.Description = form.FormValue("description")
+	food.CreatedAt = time.Now()
+	food.Price = price
+	food.Stock = stock
+
+	err = f2.FoodRepo.Store(ctx, food)
 	return err
 }
 

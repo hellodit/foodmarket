@@ -3,9 +3,9 @@ package postgre
 import (
 	"context"
 	"foodmarket/domain"
-	"github.com/google/uuid"
-
 	"github.com/go-pg/pg/v10"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 type postgreFoodRepository struct {
@@ -26,16 +26,21 @@ func (p *postgreFoodRepository) GetByID(ctx context.Context, id uuid.UUID) (res 
 	return domain.Food{}, err
 }
 
-func (p *postgreFoodRepository) Fetch(ctx context.Context) (res []domain.Food, err error) {
+func (p *postgreFoodRepository) Fetch(ctx context.Context, limit int) (res []domain.Food, err error) {
 	var foods []domain.Food
+	if limit == 0 {
+		limit = 10
+	}
 
-	err = p.DB.Model(&foods).Select()
+	err = p.DB.Model(&foods).
+		Order("created_at ASC").
+		Limit(limit).Select()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return foods, nil
 }
 
 func (p *postgreFoodRepository) Store(ctx context.Context, food *domain.Food) error {
@@ -45,9 +50,16 @@ func (p *postgreFoodRepository) Store(ctx context.Context, food *domain.Food) er
 	}
 	return err
 }
-
-func (p *postgreFoodRepository) GetByTitle(ctx context.Context, title string) (domain.Food, error) {
-	panic("implement me")
+func (p *postgreFoodRepository) FindBy(ctx context.Context, key, value string) (food *domain.Food, err error) {
+	logrus.Infoln("Find Data By Key Value")
+	food = new(domain.Food)
+	if err := p.DB.Model(food).Where(key+"=?", value).First(); err != nil {
+		return nil, err
+	}
+	logrus.WithFields(logrus.Fields{
+		"data": food,
+	}).Infoln("Respond Data")
+	return food, nil
 }
 
 func (p *postgreFoodRepository) Update(ctx context.Context, f *domain.Food) error {
