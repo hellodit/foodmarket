@@ -15,7 +15,7 @@ Simple food market implementation
 
 ## Todo
 - [x] User Authentication 
-- [ ] Resource Food 
+- [x] Resource Food 
 - [ ] Order Feature
 - [ ] Payment gateway
 - [ ] Containerization
