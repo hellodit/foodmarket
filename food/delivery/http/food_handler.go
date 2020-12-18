@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"foodmarket/domain"
+	"foodmarket/middleware"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/thedevsaddam/govalidator"
 	"net/http"
@@ -16,10 +18,34 @@ type foodHandler struct {
 
 func NewFoodHandler(e *echo.Echo, usecase domain.FoodUsecase) {
 	handler := &foodHandler{foodUsecase: usecase}
+	customMiddleware := middleware.Init()
+
 	e.GET("/foods", handler.FetchFoods)
-	e.POST("/food", handler.StoreHandler)
-	//e.POST("/food", handler.Store)
+	e.POST("/food", handler.StoreHandler, customMiddleware.Auth)
+	e.GET("/food/:id", handler.GetByIDHandler)
 }
+
+func (f foodHandler) GetByIDHandler(e echo.Context) error {
+	ctx := e.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	id, err := uuid.Parse(e.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)
+	}
+
+	res, err := f.foodUsecase.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return e.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"data":   res,
+	})
+}
+
 func (f foodHandler) FetchFoods(e echo.Context) error {
 	ctx := e.Request().Context()
 	if ctx == nil {

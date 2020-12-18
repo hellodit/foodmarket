@@ -17,13 +17,13 @@ func NewPostgreFoodRepository(DB *pg.DB) domain.FoodRepository {
 	return &postgreFoodRepository{DB}
 }
 
-func (p *postgreFoodRepository) GetByID(ctx context.Context, id uuid.UUID) (res domain.Food, err error) {
+func (p *postgreFoodRepository) GetByID(ctx context.Context, id uuid.UUID) (res *domain.Food, err error) {
 	food := new(domain.Food)
 	err = p.DB.Model(food).Where("id = ?", id).Select()
 	if err != nil {
-		return domain.Food{}, nil
+		return nil, err
 	}
-	return domain.Food{}, err
+	return food, nil
 }
 
 func (p *postgreFoodRepository) Fetch(ctx context.Context, limit int) (res []domain.Food, err error) {
@@ -62,10 +62,20 @@ func (p *postgreFoodRepository) FindBy(ctx context.Context, key, value string) (
 	return food, nil
 }
 
-func (p *postgreFoodRepository) Update(ctx context.Context, f *domain.Food) error {
-	panic("implement me")
+func (p *postgreFoodRepository) Update(ctx context.Context, f *domain.Food) (food *domain.Food, err error) {
+	_, err = p.DB.Model(f).WherePK().Update()
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }
 
-func (p *postgreFoodRepository) Delete(ctx context.Context, id uuid.UUID) (food *domain.Food, err error) {
-	panic("implement me")
+func (p *postgreFoodRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	food := new(domain.Food)
+	_, err := p.DB.Model(food).Where("id = ?", id).Delete()
+	if err != nil {
+		return err
+	}
+	return nil
+
 }

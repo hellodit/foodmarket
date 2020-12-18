@@ -27,15 +27,15 @@ type FoodRepository interface {
 	Fetch(ctx context.Context, limit int) (res []Food, err error)
 	Store(context.Context, *Food) error
 	FindBy(ctx context.Context, key, value string) (food *Food, err error)
-	Update(ctx context.Context, f *Food) error
-	GetByID(ctx context.Context, id uuid.UUID) (Food, error)
-	Delete(ctx context.Context, id uuid.UUID) (food *Food, err error)
+	Update(ctx context.Context, f *Food) (Food *Food, err error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetByID(ctx context.Context, id uuid.UUID) (Food *Food, err error)
 }
 
 //FoodUsecase to interact with database
 type FoodUsecase interface {
 	Fetch(ctx context.Context, limit int) (res interface{}, err error)
-	GetByID(ctx context.Context, id uuid.UUID) (Food, error)
+	GetByID(ctx context.Context, id uuid.UUID) (res interface{}, err error)
 	Update(ctx context.Context, food *Food, form *http.Request) error
 	Store(ctx context.Context, food *Food, form *http.Request) error
 	Delete(ctx context.Context, id uuid.UUID) error

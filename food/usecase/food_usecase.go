@@ -14,8 +14,15 @@ type foodUsecase struct {
 	ContextTimeout time.Duration
 }
 
-func (f2 *foodUsecase) GetByID(ctx context.Context, id uuid.UUID) (domain.Food, error) {
-	panic("implement me")
+func (f2 *foodUsecase) GetByID(ctx context.Context, id uuid.UUID) (res interface{}, err error) {
+	ctx, cancel := context.WithTimeout(ctx, f2.ContextTimeout)
+	defer cancel()
+
+	food, err := f2.FoodRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return food, nil
 }
 
 func (f2 *foodUsecase) Fetch(ctx context.Context, limit int) (res interface{}, err error) {
@@ -54,7 +61,7 @@ func (f2 *foodUsecase) Update(ctx context.Context, food *domain.Food, form *http
 	food.Price = price
 	food.Stock = stock
 
-	err = f2.FoodRepo.Update(ctx, food)
+	_, err = f2.FoodRepo.Update(ctx, food)
 
 	if err != nil {
 		return err
@@ -86,11 +93,21 @@ func (f2 *foodUsecase) Store(ctx context.Context, food *domain.Food, form *http.
 	food.Stock = stock
 
 	err = f2.FoodRepo.Store(ctx, food)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (f2 *foodUsecase) Delete(ctx context.Context, id uuid.UUID) error {
-	panic("implement me")
+	ctx, cancel := context.WithTimeout(ctx, f2.ContextTimeout)
+	defer cancel()
+
+	err := f2.FoodRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewFoodUsecase(repository domain.FoodRepository, duration time.Duration) domain.FoodUsecase {
