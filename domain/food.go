@@ -19,6 +19,8 @@ type (
 		Price       int       `pg:"price,type:integer(255)" json:"price" form:"price"`
 		CreatedAt   time.Time `pg:"default:now()" json:"created_at"`
 		UpdatedAt   time.Time `json:"updated_at"`
+		//Orders		[]Order `pg:"many2many:orders""`
+
 	}
 )
 

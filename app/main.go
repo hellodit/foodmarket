@@ -13,6 +13,9 @@ import (
 	_foodHttpDelivery "foodmarket/food/delivery/http"
 	_foodPostgreRepository "foodmarket/food/repository/postgre"
 	_foodUseCase "foodmarket/food/usecase"
+	_orderHttpDelivery "foodmarket/order/delivery/http"
+	_orderPostgreRepository "foodmarket/order/repository/postgre"
+	_orderUseCase "foodmarket/order/usecase"
 	_userHttDelivery "foodmarket/user/delivery/http"
 	_userPostgreRepository "foodmarket/user/repository/postgre"
 	_userUseCase "foodmarket/user/usecase"
@@ -41,12 +44,15 @@ func main() {
 		return c.String(http.StatusOK, "Welcome to "+viper.GetString("app_name"))
 	})
 
+	orderRepo := _orderPostgreRepository.NewPsqlOrderRepository(dbConnector)
 	userRepo := _userPostgreRepository.NewPsqlUserRepository(dbConnector)
 	foodRepo := _foodPostgreRepository.NewPostgreFoodRepository(dbConnector)
 
+	orderUsecase := _orderUseCase.NewOrderUsecase(orderRepo, timeoutCtx)
 	foodUsecase := _foodUseCase.NewFoodUsecase(foodRepo, timeoutCtx)
 	userUsecase := _userUseCase.NewUserUsecase(userRepo, timeoutCtx)
 
+	_orderHttpDelivery.NewOrderHandler(e, orderUsecase)
 	_foodHttpDelivery.NewFoodHandler(e, foodUsecase)
 	_userHttDelivery.NewUserHandler(e, userUsecase)
 

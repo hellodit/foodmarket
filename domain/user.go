@@ -26,6 +26,7 @@ type (
 		Type      string    `pg:"type,type:varchar(255)" json:"type" form:"type"`
 		CreatedAt time.Time `pg:"default:now()" json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
+		//Orders		[]Order `pg:"many2many:orders"`
 	}
 )
 
