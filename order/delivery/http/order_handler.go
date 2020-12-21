@@ -2,11 +2,13 @@ package http
 
 import (
 	"context"
+	"errors"
 	"foodmarket/domain"
 	"foodmarket/helper"
 	"foodmarket/middleware"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/thedevsaddam/govalidator"
 	"net/http"
 	"strconv"
 )
@@ -23,6 +25,19 @@ func NewOrderHandler(e *echo.Echo, usecase domain.OrderUsecase) {
 }
 
 func (o orderHandler) CreateOrderHandler(e echo.Context) error {
+	rules := govalidator.MapData{
+		"food_id":  []string{"required"},
+		"quantity": []string{"required"},
+	}
+
+	validate := govalidator.Options{
+		Request: e.Request(),
+		Rules:   rules,
+	}
+
+	if err := govalidator.New(validate).Validate(); len(err) > 0 {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err).SetInternal(errors.New("invalid parameter"))
+	}
 	ctx := e.Request().Context()
 	if ctx != nil {
 		ctx = context.Background()
@@ -34,7 +49,7 @@ func (o orderHandler) CreateOrderHandler(e echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, err).SetInternal(err)
 	}
 
-	qty, err := strconv.Atoi(e.FormValue("qty"))
+	qty, err := strconv.Atoi(e.FormValue("quantity"))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)

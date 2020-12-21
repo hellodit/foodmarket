@@ -48,7 +48,7 @@ func main() {
 	userRepo := _userPostgreRepository.NewPsqlUserRepository(dbConnector)
 	foodRepo := _foodPostgreRepository.NewPostgreFoodRepository(dbConnector)
 
-	orderUsecase := _orderUseCase.NewOrderUsecase(orderRepo, timeoutCtx)
+	orderUsecase := _orderUseCase.NewOrderUsecase(orderRepo, foodRepo, timeoutCtx)
 	foodUsecase := _foodUseCase.NewFoodUsecase(foodRepo, timeoutCtx)
 	userUsecase := _userUseCase.NewUserUsecase(userRepo, timeoutCtx)
 
