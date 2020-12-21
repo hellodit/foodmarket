@@ -21,7 +21,26 @@ func NewOrderHandler(e *echo.Echo, usecase domain.OrderUsecase) {
 	handler := &orderHandler{orderUsecase: usecase}
 	order := e.Group("/order")
 	customMiddleware := middleware.Init()
-	order.POST("/create", handler.CreateOrderHandler, customMiddleware.Auth)
+	order.Use(customMiddleware.Auth)
+	order.POST("/create", handler.CreateOrderHandler)
+	order.GET("/fetch", handler.FetchUserOrder)
+}
+
+func (o orderHandler) FetchUserOrder(e echo.Context) error {
+	ctx := e.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	claims, err := helper.ParseToken(e)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err).SetInternal(err)
+	}
+	userID := uuid.MustParse(claims["sub"].(string))
+	res, err := o.orderUsecase.FetchOrder(ctx, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)
+	}
+	return e.JSON(http.StatusOK, res)
 }
 
 func (o orderHandler) CreateOrderHandler(e echo.Context) error {

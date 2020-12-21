@@ -47,7 +47,19 @@ func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form
 }
 
 func (o orderUsecase) FetchOrder(ctx context.Context, userID uuid.UUID) (res interface{}, err error) {
-	panic("implement me")
+	ctx, cancel := context.WithTimeout(ctx, o.ContextTimeout)
+	defer cancel()
+
+	res, err = o.OrderRepo.FetchOrder(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"message": "success",
+		"data":    res,
+	}, nil
 }
 
 func (o orderUsecase) SetAsPaid(ctx context.Context, OrderID uuid.UUID) (res interface{}, err error) {
