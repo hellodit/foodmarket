@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"foodmarket/domain"
 	"github.com/google/uuid"
 	"net/http"
@@ -31,7 +30,6 @@ func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form
 	order.CreatedAt = time.Now()
 
 	food, err := o.FoodRepo.GetByID(ctx, uuid.MustParse(form.FormValue("food_id")))
-	fmt.Print(food)
 	if err != nil {
 		return nil, err
 	}

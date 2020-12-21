@@ -3,6 +3,7 @@ package main
 import (
 	"foodmarket/config"
 	"foodmarket/db/postgre"
+	"github.com/xendit/xendit-go"
 	"net/http"
 	"time"
 
@@ -26,7 +27,7 @@ func main() {
 	timeoutCtx := time.Duration(5) * time.Second
 	config.Read()
 	dbConnector := postgre.Connect()
-
+	xendit.Opt.SecretKey = viper.GetString("xendit_key")
 	server := &http.Server{
 		Addr:         ":" + viper.GetString("app_port"),
 		ReadTimeout:  20 * time.Minute,
