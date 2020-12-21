@@ -20,6 +20,10 @@ import (
 	_userHttDelivery "foodmarket/user/delivery/http"
 	_userPostgreRepository "foodmarket/user/repository/postgre"
 	_userUseCase "foodmarket/user/usecase"
+
+	_paymentHttDelivery "foodmarket/payment/delivery/http"
+	_paymentPostgreRepository "foodmarket/payment/repository/postgre"
+	_paymentUseCase "foodmarket/payment/usecase"
 )
 
 func main() {
@@ -48,14 +52,17 @@ func main() {
 	orderRepo := _orderPostgreRepository.NewPsqlOrderRepository(dbConnector)
 	userRepo := _userPostgreRepository.NewPsqlUserRepository(dbConnector)
 	foodRepo := _foodPostgreRepository.NewPostgreFoodRepository(dbConnector)
+	paymentRepo := _paymentPostgreRepository.NewPsqlPaymentRepository(dbConnector)
 
 	orderUsecase := _orderUseCase.NewOrderUsecase(orderRepo, foodRepo, timeoutCtx)
 	foodUsecase := _foodUseCase.NewFoodUsecase(foodRepo, timeoutCtx)
 	userUsecase := _userUseCase.NewUserUsecase(userRepo, timeoutCtx)
+	paymentUsecase := _paymentUseCase.NewPaymentUsecase(paymentRepo, orderRepo, timeoutCtx)
 
 	_orderHttpDelivery.NewOrderHandler(e, orderUsecase)
 	_foodHttpDelivery.NewFoodHandler(e, foodUsecase)
 	_userHttDelivery.NewUserHandler(e, userUsecase)
+	_paymentHttDelivery.NewPaymentHandler(e, paymentUsecase)
 
 	err := e.StartServer(server)
 	if err != nil {
