@@ -6,7 +6,7 @@ Simple food market implementation
 * User Profile  
 * Resource Food (Create, read, update, delete)
 * Order 
-* Payment gateway (Midtrans) 
+* Payment gateway (Xendit) 
 
 ## Tech stack 
 * Golang 
@@ -16,7 +16,7 @@ Simple food market implementation
 ## Todo
 - [x] User Authentication 
 - [x] Resource Food 
-- [ ] Order Feature
+- [x] Order Feature
 - [ ] Payment gateway
 - [ ] Containerization
 - [ ] Deploy 
