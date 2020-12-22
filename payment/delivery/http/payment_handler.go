@@ -26,13 +26,18 @@ func (p paymentHandler) PaymentCallbackHandler(e echo.Context) error {
 		ctx = context.Background()
 	}
 
-	//var payment domain.Payment
-	fmt.Printf("Form value %s", e.FormValue("event"))
-	//res, err := p.paymentUsecase.Create(ctx, &payment, e.Request())
-	//if err != nil {
-	//	return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)
-	//}
-	res := "test"
+	payment := new(domain.Payment)
+	if err := e.Bind(&payment); err != nil {
+		return err
+	}
+
+	fmt.Printf("Payment :%s", payment)
+
+	res, err := p.paymentUsecase.Create(ctx, payment)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)
+	}
+
 	return e.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 		"data":   res,

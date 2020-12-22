@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"foodmarket/domain"
-	"net/http"
 	"time"
 )
 
@@ -13,9 +12,14 @@ type paymentUsecase struct {
 	ContextTimeout time.Duration
 }
 
-func (p paymentUsecase) Create(ctx context.Context, payment *domain.Payment, form *http.Request) (res interface{}, err error) {
-
-	panic("implement me")
+func (p paymentUsecase) Create(ctx context.Context, payment *domain.Payment) (res interface{}, err error) {
+	ctx, cancel := context.WithTimeout(ctx, p.ContextTimeout)
+	defer cancel()
+	res, err = p.PaymentRepo.Create(ctx, payment)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func NewPaymentUsecase(paymentRepo domain.PaymentRepository, orderRepo domain.OrderRepository, duration time.Duration) domain.PaymentUsecase {
