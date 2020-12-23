@@ -3,13 +3,8 @@ package main
 import (
 	"foodmarket/config"
 	"foodmarket/db/postgre"
-	"github.com/xendit/xendit-go"
 	"net/http"
 	"time"
-
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/spf13/viper"
 
 	_foodHttpDelivery "foodmarket/food/delivery/http"
 	_foodPostgreRepository "foodmarket/food/repository/postgre"
@@ -20,6 +15,9 @@ import (
 	_userHttDelivery "foodmarket/user/delivery/http"
 	_userPostgreRepository "foodmarket/user/repository/postgre"
 	_userUseCase "foodmarket/user/usecase"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/spf13/viper"
 
 	_paymentHttDelivery "foodmarket/payment/delivery/http"
 	_paymentPostgreRepository "foodmarket/payment/repository/postgre"
@@ -27,11 +25,10 @@ import (
 )
 
 func main() {
-
-	timeoutCtx := time.Duration(5) * time.Second
 	config.Read()
 	dbConnector := postgre.Connect()
-	xendit.Opt.SecretKey = viper.GetString("xendit_key")
+	timeoutCtx := time.Duration(5) * time.Second
+
 	server := &http.Server{
 		Addr:         ":" + viper.GetString("app_port"),
 		ReadTimeout:  20 * time.Minute,

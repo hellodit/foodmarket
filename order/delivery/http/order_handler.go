@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/thedevsaddam/govalidator"
+	"github.com/xendit/xendit-go"
+	"github.com/xendit/xendit-go/ewallet"
 	"net/http"
 	"strconv"
 )
@@ -77,6 +79,20 @@ func (o orderHandler) CreateOrderHandler(e echo.Context) error {
 	order.UserID = uuid.MustParse(claims["sub"].(string))
 	order.FoodID = uuid.MustParse(e.FormValue("food_id"))
 	order.Quantity = qty
+
+	data := ewallet.CreatePaymentParams{
+		ExternalID:  "dana-ewallet",
+		Amount:      20000,
+		Phone:       "08123123123",
+		EWalletType: xendit.EWalletTypeOVO,
+		CallbackURL: "https://24bc5138a328.ngrok.io/payment/callback",
+		RedirectURL: "mystore.com/redirect",
+	}
+
+	_, err = ewallet.CreatePayment(&data)
+	//if err != nil {
+	//	return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error()).SetInternal(err)
+	//}
 
 	res, err := o.orderUsecase.CreateOrder(ctx, &order, e.Request())
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"foodmarket/domain"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
+	"github.com/veritrans/go-midtrans"
 	"net/http"
 	"time"
 )
@@ -41,7 +43,37 @@ func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form
 		return nil, err
 	}
 
-	return res, nil
+	midclient := midtrans.NewClient()
+	midclient.ServerKey = viper.GetString("midtrans_server_key")
+	midclient.ClientKey = viper.GetString("midtrans_client_key")
+	midclient.APIEnvType = midtrans.Sandbox
+	snapGateway := midtrans.SnapGateway{
+		Client: midclient,
+	}
+
+	snapReq := &midtrans.SnapReq{
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  order.ID.String(),
+			GrossAmt: int64(order.Price),
+		},
+		CustomerDetail: &midtrans.CustDetail{
+			FName: "John",
+			LName: "Doe",
+			Email: "john@doe.com",
+			Phone: "081234567890",
+		},
+	}
+
+	snapTokenResp, err := snapGateway.GetToken(snapReq)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"order":    res,
+		"midtrans": snapTokenResp,
+	}, nil
 }
 
 func (o orderUsecase) FetchOrder(ctx context.Context, userID uuid.UUID) (res interface{}, err error) {
