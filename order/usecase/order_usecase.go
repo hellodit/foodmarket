@@ -64,12 +64,6 @@ func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form
 				Name:  food.Name,
 			},
 		},
-		CustomerDetail: &midtrans.CustDetail{
-			FName: "John",
-			LName: "Doe",
-			Email: "john@doe.com",
-			Phone: "081234567890",
-		},
 	}
 
 	snapTokenResp, err := snapGateway.GetToken(snapReq)
@@ -107,6 +101,24 @@ func (o orderUsecase) FetchOrder(ctx context.Context, userID uuid.UUID) (res int
 	}, nil
 }
 
-func (o orderUsecase) SetAsPaid(ctx context.Context, OrderID uuid.UUID) (res interface{}, err error) {
+func (o orderUsecase) CekStatus(ctx context.Context, InvoiceID string) (res interface{}, err error) {
 	panic("implement me")
+}
+
+func (o orderUsecase) NotificationCallback(ctx context.Context, InvoiceID, orderStatusStr string) (res interface{}, err error) {
+	ctx, cancel := context.WithTimeout(ctx, o.ContextTimeout)
+	defer cancel()
+	order, err := o.OrderRepo.FindBy(ctx, "invoice_id", InvoiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	order.Status = orderStatusStr
+
+	res, err = o.OrderRepo.UpdateOrder(ctx, order)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

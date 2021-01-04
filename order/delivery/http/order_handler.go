@@ -2,7 +2,9 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"foodmarket/domain"
 	"foodmarket/helper"
 	"foodmarket/middleware"
@@ -24,6 +26,38 @@ func NewOrderHandler(e *echo.Echo, usecase domain.OrderUsecase) {
 	order.Use(customMiddleware.Auth)
 	order.POST("/create", handler.CreateOrderHandler)
 	order.GET("/fetch", handler.FetchUserOrder)
+
+	callback := e.Group("/midtrans")
+	callback.POST("/notification", handler.NotificationOrderHandler)
+}
+
+func (o orderHandler) NotificationOrderHandler(e echo.Context) error {
+	ctx := e.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	reqMap := make(map[string]interface{})
+	err := json.NewDecoder(e.Request().Body).Decode(&reqMap)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err).SetInternal(errors.New("invalid parameter"))
+	}
+	orderID := reqMap["order_id"]
+	orderIDstr := fmt.Sprintf("%v", orderID)
+
+	orderStatus := reqMap["transaction_status"]
+	orderStatusStr := fmt.Sprintf("%v", orderStatus)
+
+	res, err := o.orderUsecase.NotificationCallback(ctx, orderIDstr, orderStatusStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"data":   res,
+	})
+
 }
 
 func (o orderHandler) FetchUserOrder(e echo.Context) error {

@@ -26,10 +26,12 @@ type OrderRepository interface {
 	CreateOrder(ctx context.Context, order *Order) (res *Order, err error)
 	UpdateOrder(ctx context.Context, order *Order) (res *Order, err error)
 	FetchOrder(ctx context.Context, userID uuid.UUID) (res []Order, err error)
+	FindBy(ctx context.Context, key, value string) (res *Order, err error)
 }
 
 type OrderUsecase interface {
 	CreateOrder(ctx context.Context, order *Order, form *http.Request) (res interface{}, err error)
 	FetchOrder(ctx context.Context, userID uuid.UUID) (res interface{}, err error)
-	SetAsPaid(ctx context.Context, OrderID uuid.UUID) (res interface{}, err error)
+	CekStatus(ctx context.Context, InvoiceID string) (res interface{}, err error)
+	NotificationCallback(ctx context.Context, InvoiceID, Status string) (res interface{}, err error)
 }
