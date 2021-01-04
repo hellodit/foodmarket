@@ -10,6 +10,7 @@ import (
 type Order struct {
 	tableName struct{}  `pg:"orders"`
 	ID        uuid.UUID `pg:"id,pk,type:uuid" json:"id"`
+	InvoiceID string    `pg:"invoice_id,type:varchar(255)" json:"invoice_id" form:"invoice_id"`
 	Quantity  int       `pg:"quantity,type:integer(255)" json:"quantity" form:"quantity"`
 	Price     int       `pg:"price,type:integer(255)" json:"price" form:"price"`
 	UserID    uuid.UUID `pg:",pk" json:"user_id"`

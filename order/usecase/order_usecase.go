@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"foodmarket/domain"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -27,17 +28,16 @@ func NewOrderUsecase(repository domain.OrderRepository, foodRepo domain.FoodRepo
 func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form *http.Request) (res interface{}, err error) {
 	ctx, cancel := context.WithTimeout(ctx, o.ContextTimeout)
 	defer cancel()
-	order.ID = uuid.New()
-	order.Status = "pending"
-	order.CreatedAt = time.Now()
-
 	food, err := o.FoodRepo.GetByID(ctx, uuid.MustParse(form.FormValue("food_id")))
 	if err != nil {
 		return nil, err
 	}
 
+	order.ID = uuid.New()
+	order.Status = "pending"
+	order.CreatedAt = time.Now()
+	order.InvoiceID = Uniqid("INV")
 	order.Price = food.Price * order.Quantity
-
 	res, err = o.OrderRepo.CreateOrder(ctx, order)
 	if err != nil {
 		return nil, err
@@ -53,8 +53,16 @@ func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form
 
 	snapReq := &midtrans.SnapReq{
 		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  order.ID.String(),
+			OrderID:  order.InvoiceID,
 			GrossAmt: int64(order.Price),
+		},
+		Items: &[]midtrans.ItemDetail{
+			{
+				ID:    food.ID.String(),
+				Price: int64(food.Price),
+				Qty:   int32(order.Quantity),
+				Name:  food.Name,
+			},
 		},
 		CustomerDetail: &midtrans.CustDetail{
 			FName: "John",
@@ -74,6 +82,13 @@ func (o orderUsecase) CreateOrder(ctx context.Context, order *domain.Order, form
 		"order":    res,
 		"midtrans": snapTokenResp,
 	}, nil
+}
+
+func Uniqid(prefix string) string {
+	now := time.Now()
+	sec := now.Unix()
+	usec := now.UnixNano() % 0x100000
+	return fmt.Sprintf("%s-%08x%05x", prefix, sec, usec)
 }
 
 func (o orderUsecase) FetchOrder(ctx context.Context, userID uuid.UUID) (res interface{}, err error) {
