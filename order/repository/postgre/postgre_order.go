@@ -49,6 +49,7 @@ func (p psqlOrderRepository) FetchOrder(ctx context.Context, userID uuid.UUID) (
 	var orders []domain.Order
 	err = p.DB.Model(&orders).Where("user_id = ? ", userID).
 		Order("created_at ASC").
+		Relation("Food").
 		Limit(20).Select()
 
 	if err != nil {

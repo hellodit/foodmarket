@@ -14,9 +14,9 @@ type Order struct {
 	Quantity  int       `pg:"quantity,type:integer(255)" json:"quantity" form:"quantity"`
 	Price     int       `pg:"price,type:integer(255)" json:"price" form:"price"`
 	UserID    uuid.UUID `pg:",pk" json:"user_id"`
-	//User		*User	  `pg:"rel:has-one"`
-	FoodID uuid.UUID `pg:",pk" json:"food_id"`
-	//Food		*Food	  `pg:"rel:has-one"`
+	User      *User     `pg:"rel:has-one"`
+	FoodID    uuid.UUID `pg:",pk" json:"food_id"`
+	Food      *Food     `pg:"rel:has-one"`
 	Status    string    `pg:"status,type:varchar(255)" json:"status" form:"status"`
 	CreatedAt time.Time `pg:"default:now()" json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
