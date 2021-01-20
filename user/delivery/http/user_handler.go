@@ -6,10 +6,11 @@ import (
 	"foodmarket/domain"
 	"foodmarket/helper"
 	"foodmarket/middleware"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
 )
 
 type userHandler struct {

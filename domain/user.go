@@ -21,12 +21,13 @@ type (
 		tableName struct{}  `pg:"users"`
 		ID        uuid.UUID `pg:"id,pk,type:uuid" json:"id"`
 		Name      string    `pg:"name,type:varchar(255)" json:"name" form:"name"`
+		Avatar    string    `pg:"avatar,type:varchar(255)" json:"avatar" form:"avatar"`
 		Email     string    `pg:"email,type:varchar(255)" json:"email" form:"email"`
 		Password  string    `pg:"password,type:varchar(255)" json:"-" form:"password"`
 		Type      string    `pg:"type,type:varchar(255)" json:"type" form:"type"`
 		CreatedAt time.Time `json:"-"`
 		UpdatedAt time.Time `json:"-"`
-		Orders    []Order   `pg:"many2many:orders"`
+		// Orders    []Order   `pg:"many2many:orders"`
 	}
 )
 
