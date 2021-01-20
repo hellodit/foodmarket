@@ -1,0 +1,40 @@
+version: '3.5'
+services:
+  web-app:
+    container_name: foodmarket-api
+    build: .
+    ports: 
+      - 8080:8080 
+    restart: on-failure
+    volumes:
+      - .:/usr/src/app/
+    depends_on:
+      - fullstack-postgres          # Uncomment this when using postgres.
+    networks:
+      - fullstack
+
+  web-app-db:
+    image: 'postgres:12.1'
+    container_name: web-app_db
+    hostname: web-app-db
+    environment:
+      - POSTGRES_USER=web-app
+      - POSTGRES_PASSWORD=web-app123
+      - POSTGRES_DB=web-app
+    restart: always
+    ports:
+      - "21543:5432"
+    volumes:
+      - ./infra/postgres:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - fullstack
+
+
+volumes:
+  web-app:
+  database_postgres: 
+     
+networks:
+  fullstack:
+    driver: bridge
