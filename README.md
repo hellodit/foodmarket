@@ -21,6 +21,5 @@ Simple food market implementation
 - [x] Resource Food 
 - [x] Order Feature 
 - [x] Payment gateway 
-- [ ] Containerization 
-- [ ] Deploy 
-- [ ] etc
+- [x] Containerization 
+- [x] Deploy 
