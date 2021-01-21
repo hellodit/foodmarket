@@ -1,26 +1,28 @@
 version: '3.5'
 services:
-  web-app:
+  foodmarket-api:
+    image: golang:alpine
+    working_dir: /usr/src/app/
+    command: sh -c "go run ."
     container_name: foodmarket-api
-    build: .
     ports: 
-      - 8080:8080 
+      - 1233:1233 
     restart: on-failure
     volumes:
       - .:/usr/src/app/
     depends_on:
-      - fullstack-postgres          # Uncomment this when using postgres.
+      - foodmarket-db        # Uncomment this when using postgres.
     networks:
       - fullstack
 
-  web-app-db:
-    image: 'postgres:12.1'
-    container_name: web-app_db
-    hostname: web-app-db
+  foodmarket-db:
+    image: 'postgres:alpine'
+    container_name: foodmarket-db
+    hostname: foodmarket-db
     environment:
-      - POSTGRES_USER=web-app
-      - POSTGRES_PASSWORD=web-app123
-      - POSTGRES_DB=web-app
+      - POSTGRES_USER=userfoodmarketdb
+      - POSTGRES_PASSWORD=foodmarketdb123
+      - POSTGRES_DB=foodmarketdb
     restart: always
     ports:
       - "21543:5432"
@@ -29,11 +31,26 @@ services:
     restart: always
     networks:
       - fullstack
-
+  
+  foodmarket-pgadmin:
+    container_name: foodmarket-pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+       - /infra/data/pgadmin:/root/.pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5051}:80"
+    networks:
+      - fullstack
+    depends_on:
+      - foodmarket-db  
+    restart: unless-stopped
 
 volumes:
-  web-app:
-  database_postgres: 
+  foodmarket-api:
+  foodmarket-db: 
      
 networks:
   fullstack:
