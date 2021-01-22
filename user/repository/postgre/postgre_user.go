@@ -2,11 +2,13 @@ package postgre
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 
 	"foodmarket/domain"
+
 	"github.com/go-pg/pg/v10"
 )
 
@@ -54,22 +56,23 @@ func (u *PsqlUserRepository) Attempt(ctx context.Context, credential *domain.Cre
 	return user, nil
 }
 
-func (u PsqlUserRepository) Update(ctx context.Context, usr *domain.User) (user *domain.User, err error) {
+// Update Query for Update  user
+func (u PsqlUserRepository) Update(ctx context.Context, usr *domain.User) error {
 	logrus.WithFields(logrus.Fields{
 		"data": usr,
 	}).Infoln("Respond Data")
 
-	_, err = u.DB.Model(usr).
+	_, err := u.DB.Model(usr).
 		WherePK().
-		Update()
+		UpdateNotZero()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	logrus.Infoln("Success updated")
 
-	return usr, nil
+	return nil
 }
 
 func (u PsqlUserRepository) Find(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {

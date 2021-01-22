@@ -2,15 +2,20 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"foodmarket/domain"
 	"foodmarket/helper"
 	"foodmarket/thirdparty/mail"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/labstack/gommon/random"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"time"
 )
 
 type UserUsecase struct {
@@ -30,7 +35,7 @@ func (u UserUsecase) ForgetPassword(ctx context.Context, email string) (int, err
 	randomPass := random.String(8)
 	encrypted, _ := bcrypt.GenerateFromPassword([]byte(randomPass), bcrypt.DefaultCost)
 	userAccount.Password = string(encrypted)
-	_, err = u.UserRepo.Update(ctx, userAccount)
+	err = u.UserRepo.Update(ctx, userAccount)
 	if err != nil {
 		return 423, err
 	}
@@ -95,13 +100,39 @@ func (u UserUsecase) UpdateUser(ctx context.Context, usr *domain.User, form *htt
 	ctx, cancel := context.WithTimeout(ctx, u.ContextTimeout)
 	defer cancel()
 
+	avatar, handler, err := form.FormFile("avatar")
+	if err != nil {
+		return nil, err
+	}
+	defer avatar.Close()
+
+	//create the upload folder id doesn't already exist
+	err = os.MkdirAll("./media/upload/image", os.ModePerm)
+
+	if err != nil {
+		return nil, err
+	}
+
+	dst, err := os.Create(fmt.Sprintf("./media/upload/image/%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename)))
+	if err != nil {
+		return nil, err
+	}
+	defer dst.Close()
+
+	// Copy the uploaded file to the filesystem
+	// at the specified destination
+	_, err = io.Copy(dst, avatar)
+	if err != nil {
+		return nil, err
+	}
+	usr.Avatar = fmt.Sprintf("./media/upload/image/%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
 	usr.Name = form.FormValue("name")
 	usr.Email = form.FormValue("email")
 	usr.Type = "user"
 	usr.UpdatedAt = time.Now()
 	usr.Password = ""
 
-	res, err = u.UserRepo.Update(ctx, usr)
+	err = u.UserRepo.Update(ctx, usr)
 
 	if err != nil {
 		return nil, err
