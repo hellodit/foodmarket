@@ -27,7 +27,7 @@ services:
     ports:
       - "21543:5432"
     volumes:
-      - ./infra/postgres:/var/lib/postgresql/data
+      - ./infra/data/postgres:/var/lib/postgresql/data
     restart: always
     networks:
       - fullstack
@@ -39,7 +39,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     volumes:
-       - /infra/data/pgadmin:/root/.pgadmin
+       - ./infra/data/pgadmin:/root/.pgadmin
     ports:
       - "${PGADMIN_PORT:-5051}:80"
     networks:
@@ -50,7 +50,8 @@ services:
 
 volumes:
   foodmarket-api:
-  foodmarket-db: 
+  foodmarket-db:
+  foodmarket-pgadmin:
      
 networks:
   fullstack:
