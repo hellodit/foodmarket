@@ -100,32 +100,35 @@ func (u UserUsecase) UpdateUser(ctx context.Context, usr *domain.User, form *htt
 	ctx, cancel := context.WithTimeout(ctx, u.ContextTimeout)
 	defer cancel()
 
-	avatar, handler, err := form.FormFile("avatar")
-	if err != nil {
-		return nil, err
-	}
-	defer avatar.Close()
+	if len(form.MultipartForm.File) > 0 {
+		avatar, handler, err := form.FormFile("avatar")
+		if err != nil {
+			return nil, err
+		}
+		defer avatar.Close()
 
-	//create the upload folder id doesn't already exist
-	err = os.MkdirAll("./media/upload/image", os.ModePerm)
+		//create the upload folder id doesn't already exist
+		err = os.MkdirAll("./media/upload/image", os.ModePerm)
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+
+		dst, err := os.Create(fmt.Sprintf("./media/upload/image/%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename)))
+		if err != nil {
+			return nil, err
+		}
+		defer dst.Close()
+
+		// Copy the uploaded file to the filesystem
+		// at the specified destination
+		_, err = io.Copy(dst, avatar)
+		if err != nil {
+			return nil, err
+		}
+		usr.Avatar = fmt.Sprintf("./media/upload/image/%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
 	}
 
-	dst, err := os.Create(fmt.Sprintf("./media/upload/image/%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename)))
-	if err != nil {
-		return nil, err
-	}
-	defer dst.Close()
-
-	// Copy the uploaded file to the filesystem
-	// at the specified destination
-	_, err = io.Copy(dst, avatar)
-	if err != nil {
-		return nil, err
-	}
-	usr.Avatar = fmt.Sprintf("./media/upload/image/%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
 	usr.Name = form.FormValue("name")
 	usr.Email = form.FormValue("email")
 	usr.Type = "user"
