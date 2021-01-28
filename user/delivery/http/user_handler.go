@@ -32,6 +32,21 @@ func NewUserHandler(e *echo.Echo, UserUsecase domain.UserUseCase) {
 }
 
 func (u userHandler) UpdateHandler(e echo.Context) error {
+	rules := govalidator.MapData{
+		"name":        []string{"min:4", "max:20", "email"},
+		"email":       []string{"between:3,8"},
+		"file:avatar": []string{"ext:jpg,png"},
+	}
+
+	validate := govalidator.Options{
+		Request: e.Request(),
+		Rules:   rules,
+	}
+
+	if err := govalidator.New(validate).Validate(); len(err) > 0 {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err).SetInternal(errors.New("invalid parameter"))
+	}
+
 	ctx := e.Request().Context()
 
 	if ctx == nil {
@@ -56,8 +71,9 @@ func (u userHandler) UpdateHandler(e echo.Context) error {
 	}
 
 	return e.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   res,
+		"status":  "success",
+		"message": "Success update user",
+		"data":    res,
 	})
 }
 func (u userHandler) GetByIDHandler(e echo.Context) error {

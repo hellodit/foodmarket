@@ -35,7 +35,7 @@ type (
 type UserRepository interface {
 	CreateUser(ctx context.Context, usr *User) (user *User, err error)
 	Attempt(ctx context.Context, credential *Credential) (user *User, err error)
-	Update(ctx context.Context, usr *User) (user *User, err error)
+	Update(ctx context.Context, usr *User) error
 	Find(ctx context.Context, id uuid.UUID) (user *User, err error)
 	FindBy(ctx context.Context, key, value string) (user *User, err error)
 	Fetch(ctx context.Context) (res []User, err error)

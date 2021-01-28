@@ -16,3 +16,14 @@ mail_port: 2525
 mail_username: ""
 mail_password: ""
 mail_encrypt: tls
+
+midtrans_server_key: ""
+midtrans_client_key: ""
+
+MINIO_KEY: ""
+MINIO_SECRET: ""
+MINIO_ENDPOINT: ""
+MINIO_BUCKET: ""
+MINIO_REGION: ""
+MINIO_CDN: ""
+MINIO_SSL: ""

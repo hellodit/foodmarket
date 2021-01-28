@@ -7,11 +7,11 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-pg/pg/v10 v10.7.3
 	github.com/google/uuid v1.1.2
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/labstack/gommon v0.3.0
+	github.com/minio/minio-go/v7 v7.0.7
 	github.com/pkg/errors v0.8.1
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/viper v1.7.1
 	github.com/thedevsaddam/govalidator v1.9.10
 	github.com/veritrans/go-midtrans v0.0.0-20201123044117-af6ac109e8d8
