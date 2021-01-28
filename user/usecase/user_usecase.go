@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"foodmarket/domain"
 	"foodmarket/helper"
@@ -150,7 +151,7 @@ func (u UserUsecase) Login(ctx context.Context, credential *domain.Credential) (
 
 	user, err := u.UserRepo.Attempt(ctx, credential)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Email atau kata sandi tidak sesuai.\nSilakan tulis email terdaftar atau kata sandi yang sesuai.")
 	}
 
 	token, exp, err := helper.GenerateJwt(ctx, user)
