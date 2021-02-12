@@ -23,7 +23,6 @@ services:
       - POSTGRES_USER=userfoodmarketdb
       - POSTGRES_PASSWORD=foodmarketdb123
       - POSTGRES_DB=foodmarketdb
-    restart: always
     ports:
       - "21543:5432"
     volumes:
